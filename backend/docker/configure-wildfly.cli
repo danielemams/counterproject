@@ -1,0 +1,24 @@
+embed-server --server-config=standalone.xml
+
+# Add PostgreSQL driver
+/subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql,driver-module-name=org.postgresql,driver-class-name=org.postgresql.Driver)
+
+# Add datasource
+data-source add \
+    --name=CounterProjectDS \
+    --jndi-name=java:jboss/datasources/CounterProjectDS \
+    --driver-name=postgresql \
+    --connection-url=jdbc:postgresql://${env.DB_HOST:db}:${env.DB_PORT:5432}/${env.DB_NAME:counterproject} \
+    --user-name=${env.DB_USER:counterproject} \
+    --password=${env.DB_PASSWORD:counterproject} \
+    --use-ccm=true \
+    --max-pool-size=25 \
+    --blocking-timeout-wait-millis=5000 \
+    --enabled=true \
+    --driver-class=org.postgresql.Driver \
+    --jta=true \
+    --use-java-context=true \
+    --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker \
+    --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter
+
+stop-embedded-server

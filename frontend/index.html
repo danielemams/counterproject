@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter Project - Queues</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="index.html">Queues</a>
+            <a href="templates.html">Templates</a>
+        </nav>
+
+        <h1>Queues</h1>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="showCreateQueueModal()">Create Queue</button>
+        </div>
+
+        <div id="error" class="error" style="display:none;"></div>
+        <div id="success" class="success" style="display:none;"></div>
+
+        <table id="queuesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Init Value</th>
+                    <th>Init Date</th>
+                    <th>Linear Consumption</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="queuesBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Create/Edit Queue Modal -->
+    <div id="queueModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQueueModal()">&times;</span>
+            <h2 id="modalTitle">Create Queue</h2>
+            <form id="queueForm" onsubmit="saveQueue(event)">
+                <input type="hidden" id="queueId">
+
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="queueName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Init Value:</label>
+                    <input type="number" step="0.01" id="queueInitValue" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Init Date:</label>
+                    <input type="datetime-local" id="queueDtInitValue" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Expiry Date (optional):</label>
+                    <input type="date" id="queueDtExpiryInitValue">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="queueIsWithLinearConsumption">
+                        With Linear Consumption
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-success">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeQueueModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/queues.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+# Build stage
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
+
+WORKDIR /build
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+# Runtime stage
+FROM quay.io/wildfly/wildfly:38.0.1.Final-jdk21
+
+# Set environment variables
+ENV WILDFLY_HOME=/opt/jboss/wildfly
+ENV DEPLOYMENT_DIR=${WILDFLY_HOME}/standalone/deployments
+
+# Switch to root to install modules
+USER root
+
+# Create PostgreSQL module directory
+RUN mkdir -p ${WILDFLY_HOME}/modules/org/postgresql/main
+
+# Download PostgreSQL JDBC driver
+RUN curl -L https://jdbc.postgresql.org/download/postgresql-42.7.1.jar \
+    -o ${WILDFLY_HOME}/modules/org/postgresql/main/postgresql-42.7.1.jar
+
+# Copy module.xml
+COPY docker/module.xml ${WILDFLY_HOME}/modules/org/postgresql/main/
+
+# Copy WildFly configuration files
+COPY docker/configure-wildfly.cli ${WILDFLY_HOME}/
+COPY docker/startup.sh ${WILDFLY_HOME}/
+
+# Copy the WAR from builder stage
+COPY --from=builder /build/target/counterproject.war ${DEPLOYMENT_DIR}/
+
+# Make startup script executable
+RUN chmod +x ${WILDFLY_HOME}/startup.sh
+
+# Change ownership to jboss user
+RUN chown -R jboss:jboss ${WILDFLY_HOME}
+
+# Switch back to jboss user
+USER jboss
+
+# Expose ports
+EXPOSE 8080 9990
+
+# Start WildFly with configuration script
+CMD ["/opt/jboss/wildfly/startup.sh"]
